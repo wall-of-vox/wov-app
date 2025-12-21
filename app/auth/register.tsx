@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function SignUpScreen() {
     const [formData, setFormData] = useState({
@@ -39,6 +41,16 @@ export default function SignUpScreen() {
     }, [usernameStatus]);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const passwordRequirements = useMemo(
+        () => [
+            { text: 'At least 8 characters', valid: formData.password.length >= 8 },
+            { text: 'One uppercase letter', valid: /[A-Z]/.test(formData.password) },
+            { text: 'One lowercase letter', valid: /[a-z]/.test(formData.password) },
+            { text: 'One number', valid: /\d/.test(formData.password) },
+            { text: 'One special character (@$!%*?&)', valid: /[@$!%*?&]/.test(formData.password) },
+        ],
+        [formData.password]
+    );
 
     useEffect(() => {
         if (!formData.username) {
@@ -114,8 +126,10 @@ export default function SignUpScreen() {
         <SafeAreaView className="flex-1 bg-white">
             <ScrollView
                 className="flex-1"
-                contentContainerClassName="flex-1 justify-center px-4"
+                contentContainerClassName="px-4 py-6 pb-24"
                 keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                scrollEnabled
             >
                 <View className="w-full max-w-md mx-auto bg-white text-primary shadow-none border-0">
                     <View className="items-center mb-4">
@@ -134,7 +148,7 @@ export default function SignUpScreen() {
                             onPress={() => { }}
                         >
                             <View className="w-5 h-5 items-center justify-center">
-                                <Text className="text-lg font-bold text-blue-600">G</Text>
+                                <Text className="text-lg font-bold text-primary">G</Text>
                             </View>
                             <Text className="text-gray-900 font-medium">Continue with Google</Text>
                         </Pressable>
@@ -170,9 +184,9 @@ export default function SignUpScreen() {
                                             {usernameStatus === "checking" ? (
                                                 <View className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
                                             ) : usernameStatus === "available" ? (
-                                                <Text className="text-green-600">✓</Text>
+                                                <Text className="text-success">✓</Text>
                                             ) : usernameStatus === "taken" ? (
-                                                <Text className="text-red-600">✕</Text>
+                                                <Text className="text-destructive">✕</Text>
                                             ) : null}
                                         </View>
                                     }
@@ -186,9 +200,19 @@ export default function SignUpScreen() {
 
                             <View className="gap-3">
                                 <Text>Choose your preferred contact method *</Text>
-                                <View className="flex-row space-x-6">
+                                <RadioGroup
+                                    value={contactMethod}
+                                    onValueChange={(v) => {
+                                        const next = (v as 'email' | 'mobile');
+                                        setContactMethod(next);
+                                        setErrors((prev) => ({ ...prev, email: '', mobile: '', contact: '' }));
+                                        resetOTPState();
+                                    }}
+                                    disabled={otpVerified}
+                                    className="flex-row items-center gap-6"
+                                >
                                     <Pressable
-                                        className="flex-row items-center space-x-2"
+                                        className="flex-row items-center gap-2"
                                         onPress={() => {
                                             setContactMethod('email');
                                             setErrors((prev) => ({ ...prev, email: '', mobile: '', contact: '' }));
@@ -196,11 +220,11 @@ export default function SignUpScreen() {
                                         }}
                                         disabled={otpVerified}
                                     >
-                                        <View className={`w-4 h-4 rounded-full border ${contactMethod === 'email' ? 'bg-primary border-primary' : 'border-gray-400'}`} />
+                                        <RadioGroupItem value="email" />
                                         <Text>Email Address</Text>
                                     </Pressable>
                                     <Pressable
-                                        className="flex-row items-center space-x-2"
+                                        className="flex-row items-center gap-2"
                                         onPress={() => {
                                             setContactMethod('mobile');
                                             setErrors((prev) => ({ ...prev, email: '', mobile: '', contact: '' }));
@@ -208,10 +232,10 @@ export default function SignUpScreen() {
                                         }}
                                         disabled={otpVerified}
                                     >
-                                        <View className={`w-4 h-4 rounded-full border ${contactMethod === 'mobile' ? 'bg-primary border-primary' : 'border-gray-400'}`} />
+                                        <RadioGroupItem value="mobile" />
                                         <Text>Mobile Number</Text>
                                     </Pressable>
-                                </View>
+                                </RadioGroup>
                             </View>
 
                             {contactMethod === 'email' ? (
@@ -317,6 +341,19 @@ export default function SignUpScreen() {
                                         </Pressable>
                                     }
                                 />
+                                {/* Realtime Validation */}
+                                <View className="gap-1">
+                                    {passwordRequirements.map((req, index) => (
+                                        <View key={index} className="flex-row items-center gap-2">
+                                            <Text className={req.valid ? 'text-success text-xs' : 'text-muted-foreground text-xs'}>
+                                                {req.valid ? '✓' : '✕'}
+                                            </Text>
+                                            <Text className={req.valid ? 'text-success text-xs' : 'text-muted-foreground text-xs'}>
+                                                {req.text}
+                                            </Text>
+                                        </View>
+                                    ))}
+                                </View>
                             </View>
 
                             <View className="gap-2">
@@ -336,17 +373,17 @@ export default function SignUpScreen() {
                                 />
                             </View>
 
-                            <View className="flex-row items-start space-x-3">
-                                <Pressable
-                                    className={`w-5 h-5 rounded-md border ${formData.acceptTerms ? 'bg-primary border-primary' : 'border-gray-400'}`}
-                                    onPress={() => setFormData({ ...formData, acceptTerms: !formData.acceptTerms })}
+                            <View className="flex-row items-center gap-2">
+                                <Checkbox
+                                    checked={formData.acceptTerms}
+                                    onCheckedChange={(v) => setFormData({ ...formData, acceptTerms: v })}
                                 />
                                 <View className="flex-1">
                                     <Text className="text-sm">
                                         I accept the{" "}
-                                        <Link href="/terms" className="text-blue-600">Terms of Service</Link>{" "}
+                                        <Link href="/terms" className="text-primary">Terms of Service</Link>{" "}
                                         and{" "}
-                                        <Link href="/privacy" className="text-blue-600">Privacy Policy</Link>
+                                        <Link href="/privacy" className="text-primary">Privacy Policy</Link>
                                     </Text>
                                 </View>
                             </View>
@@ -354,7 +391,9 @@ export default function SignUpScreen() {
 
                             <Button
                                 title={isSubmitting ? "Creating Account..." : "Create Account"}
-                                className="w-full"
+                                className="w-full mt-2"
+                                variant='primary'
+                                onPress={handleSubmit}
                                 disabled={
                                     isSubmitting ||
                                     !otpVerified ||
@@ -368,7 +407,7 @@ export default function SignUpScreen() {
                         <View className="items-center">
                             <Text className="text-sm text-gray-500">
                                 Already have an account?{" "}
-                                <Link href="/auth/login" className="text-blue-600">Sign in</Link>
+                                <Link href="/auth/login" className="text-primary">Sign in</Link>
                             </Text>
                         </View>
                     </View>

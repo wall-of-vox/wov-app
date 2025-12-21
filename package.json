@@ -11,10 +11,11 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "wov-app/native": "^7.1.26",
-    "wov-app/native-stack": "^7.9.0",
+    "@react-navigation/native": "^7.0.0",
+    "@react-navigation/native-stack": "^7.0.0",
     "@reduxjs/toolkit": "^2.11.2",
     "expo": "^54.0.0",
+    "expo-linking": "~8.0.11",
     "expo-router": "~6.0.21",
     "expo-status-bar": "~3.0.8",
     "nativewind": "latest",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~19.1.10",
+    "babel-preset-expo": "^54.0.9",
     "eslint": "^9.25.1",
     "eslint-config-expo": "~10.0.0",
     "eslint-config-prettier": "^10.1.2",
