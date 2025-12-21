@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Pressable, Image, ScrollView } from 'react-native';
+import { View, Text, Pressable, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from "@/components/ui/button";
 import { router } from 'expo-router';
+import Input from "@/components/ui/input";
 
 export default function LoginScreen() {
     const [formData, setFormData] = useState({
@@ -70,49 +71,38 @@ export default function LoginScreen() {
                                 </View>
                             )}
 
-                            <View className="gap-2">
-                                <Text className="text-gray-700">Username, Mobile, or Email</Text>
-                                <TextInput
-                                    value={formData.usernameOrMobileOrEmail}
-                                    onChangeText={(t) => handleInputChange("usernameOrMobileOrEmail", t)}
-                                    placeholder="Enter your username, mobile, or email"
-                                    editable={!isSubmitting}
-                                    className={`border rounded-md p-3 ${errors.usernameOrMobileOrEmail ? "border-red-500" : "border-gray-300"}`}
-                                />
-                                {errors.usernameOrMobileOrEmail && (
-                                    <Text className="text-sm text-red-600">{errors.usernameOrMobileOrEmail}</Text>
-                                )}
-                            </View>
+                            <Input
+                                label="Username, Mobile, or Email"
+                                value={formData.usernameOrMobileOrEmail}
+                                onChangeText={(t) => handleInputChange("usernameOrMobileOrEmail", t)}
+                                placeholder="Enter your username, mobile, or email"
+                                editable={!isSubmitting}
+                                error={errors.usernameOrMobileOrEmail}
+                                variant="outline"
+                            />
 
-                            <View className="gap-2">
-                                <Text className="text-gray-700">Password</Text>
-                                <View className="relative">
-                                    <TextInput
-                                        value={formData.password}
-                                        onChangeText={(t) => handleInputChange("password", t)}
-                                        placeholder="Enter your password"
-                                        secureTextEntry={!showPassword}
-                                        editable={!isSubmitting}
-                                        className={`border rounded-md p-3 pr-10 ${errors.password ? "border-red-500" : "border-gray-300"}`}
-                                    />
+                            <Input
+                                label="Password"
+                                value={formData.password}
+                                onChangeText={(t) => handleInputChange("password", t)}
+                                placeholder="Enter your password"
+                                secureTextEntry={!showPassword}
+                                editable={!isSubmitting}
+                                error={errors.password}
+                                variant="outline"
+                                right={
                                     <Pressable
-                                        className="absolute right-0 top-0 h-full px-3 py-2 items-center justify-center"
                                         onPress={() => setShowPassword((s) => !s)}
                                         disabled={isSubmitting}
                                     >
                                         <Text className="text-gray-600">{showPassword ? "Hide" : "Show"}</Text>
                                     </Pressable>
-                                </View>
-                                <View className="flex-row justify-between items-center">
-                                    <View>
-                                        {errors.password && (
-                                            <Text className="text-sm text-red-600">{errors.password}</Text>
-                                        )}
-                                    </View>
-                                    <Pressable onPress={() => { }}>
-                                        <Text className="text-sm font-medium text-red-600">Forgot Password?</Text>
-                                    </Pressable>
-                                </View>
+                                }
+                            />
+                            <View className="flex-row justify-end items-center">
+                                <Pressable onPress={() => { }}>
+                                    <Text className="text-sm font-medium text-red-600">Forgot Password?</Text>
+                                </Pressable>
                             </View>
 
                             <Button
@@ -125,7 +115,7 @@ export default function LoginScreen() {
                         <View className="items-center">
                             <Text className="text-sm text-gray-500">
                                 Don't have an account?{" "}
-                                <Text className="text-blue-600 font-medium" onPress={() => router.replace('/auth/register')}>Sign up</Text>
+                                <Text className="text-primary font-medium" onPress={() => router.replace('/auth/register')}>Sign up</Text>
                             </Text>
                         </View>
                     </View>

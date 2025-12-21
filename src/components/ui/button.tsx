@@ -2,7 +2,7 @@ import { Pressable, Text, PressableProps } from 'react-native';
 
 type ButtonProps = PressableProps & {
   title: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'destructive';
 };
 
 export default function Button({
@@ -13,7 +13,8 @@ export default function Button({
   const base = 'px-4 py-3 rounded-full items-center justify-center';
   const variants = {
     primary: 'bg-primary',
-    secondary: 'bg-gray-600',
+    secondary: 'bg-secondary',
+    destructive: 'bg-destructive'
   } as const;
   const text = 'text-white font-medium';
   return (
