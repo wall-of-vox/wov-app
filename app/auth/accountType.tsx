@@ -14,7 +14,7 @@ export default function AccountTypeScreen() {
             return;
         }
         setError(undefined);
-        router.push(`/auth/Preferences?type=${userType}`);
+        router.push(`/auth/preferences?type=${userType}`);
     };
 
     const selectedIsPersonal = userType === 'personal';
