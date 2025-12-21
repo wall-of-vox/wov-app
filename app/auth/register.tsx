@@ -391,7 +391,6 @@ export default function SignUpScreen() {
 
                             <Button
                                 title={isSubmitting ? "Creating Account..." : "Create Account"}
-                                className="w-full mt-2"
                                 variant='primary'
                                 onPress={handleSubmit}
                                 disabled={

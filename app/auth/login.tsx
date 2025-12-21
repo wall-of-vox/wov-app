@@ -132,7 +132,7 @@ export default function LoginScreen() {
                             />
                             <View className="flex-row justify-end items-center">
                                 <Pressable onPress={() => { }}>
-                                    <Text className="text-sm font-medium text-red-600">Forgot Password?</Text>
+                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.replace('/auth/accountType')}>Forgot Password?</Text>
                                 </Pressable>
                             </View>
 
