@@ -3,14 +3,30 @@ import { api } from "@/lib/redux/api";
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<
-      { token: string },
-      { email: string; password: string }
+      {
+        success: boolean;
+        message?: string;
+        requires2FA?: boolean;
+        token?: string;
+        tempToken?: string;
+        data?: {
+          user?: any;
+          isGoogleAccount?: boolean;
+          accessToken?: string;
+          refreshToken?: string;
+          expiresIn?: string | number;
+          requires2FA?: boolean;
+          tempToken?: string;
+        };
+      },
+      { usernameOrMobileOrEmail: string; password: string }
     >({
-      query: (data) => ({
-        url: "/login",
+      query: (credentials) => ({
+        url: "/auth/login",
         method: "POST",
-        body: data,
+        body: credentials,
       }),
+      invalidatesTags: ["User", "Auth"],
     }),
   }),
 });

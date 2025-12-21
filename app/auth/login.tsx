@@ -4,6 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from "@/components/ui/button";
 import { router } from 'expo-router';
 import Input from "@/components/ui/input";
+import { useLoginMutation } from "@/features/auth/authApi";
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { setToken, setTwoFAState } from "@/features/auth/authSlice";
 
 export default function LoginScreen() {
     const [formData, setFormData] = useState({
@@ -16,15 +19,43 @@ export default function LoginScreen() {
     }>({});
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [authError] = useState<string | undefined>(undefined);
+    const [authError, setAuthError] = useState<string | undefined>(undefined);
+    const dispatch = useAppDispatch();
+    const [login, { isLoading, error }] = useLoginMutation();
 
     const handleInputChange = (name: "usernameOrMobileOrEmail" | "password", value: string) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setIsSubmitting(true);
-        setTimeout(() => setIsSubmitting(false), 600);
+        setAuthError(undefined);
+        try {
+            const res = await login({
+                usernameOrMobileOrEmail: formData.usernameOrMobileOrEmail,
+                password: formData.password,
+            }).unwrap();
+            const token = res.token ?? res.data?.accessToken;
+            const requires2FA = !!(res.requires2FA ?? res.data?.requires2FA);
+            const tempToken = res.tempToken ?? res.data?.tempToken;
+            if (requires2FA && tempToken) {
+                dispatch(setTwoFAState({ tempToken, requires2FA }));
+                router.replace('/auth/verify-2fa');
+            } else if (token) {
+                dispatch(setToken(token));
+                router.replace('/home/feed');
+            } else {
+                setAuthError(res.message ?? 'Unexpected response');
+            }
+        } catch (e: any) {
+            const message =
+                e?.data?.message ||
+                e?.error ||
+                'Login failed';
+            setAuthError(message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -108,7 +139,7 @@ export default function LoginScreen() {
                             <Button
                                 title={isSubmitting ? "Signing In..." : "Sign In"}
                                 onPress={handleSubmit}
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || isLoading}
                             />
                         </View>
 
