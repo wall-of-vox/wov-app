@@ -5,6 +5,7 @@ interface AuthState {
   isLoggedIn: boolean;
   tempToken?: string | null;
   requires2FA?: boolean;
+  reauthToken?: string | null;
 }
 
 const initialState: AuthState = {
@@ -12,6 +13,7 @@ const initialState: AuthState = {
   isLoggedIn: false,
   tempToken: null,
   requires2FA: false,
+  reauthToken: null,
 };
 
 const authSlice = createSlice({
@@ -27,13 +29,17 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.tempToken = null;
       state.requires2FA = false;
+      state.reauthToken = null;
     },
     setTwoFAState(state, action: PayloadAction<{ tempToken?: string | null; requires2FA?: boolean }>) {
       state.tempToken = action.payload.tempToken ?? null;
       state.requires2FA = !!action.payload.requires2FA;
     },
+    setReauthToken(state, action: PayloadAction<string | null>) {
+      state.reauthToken = action.payload ?? null;
+    },
   },
 });
 
-export const { setToken, logout, setTwoFAState } = authSlice.actions;
+export const { setToken, logout, setTwoFAState, setReauthToken } = authSlice.actions;
 export default authSlice.reducer;

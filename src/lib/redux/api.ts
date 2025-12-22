@@ -9,8 +9,13 @@ export const api = createApi({
     prepareHeaders: (headers, { getState }) => {
       const state = getState() as RootState;
       const token = state.auth.token;
+      const reauthToken = (state as any)?.auth?.reauthToken ?? null;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
+      }
+      headers.set("Content-Type", "application/json");
+      if (reauthToken) {
+        headers.set("X-Reauth-Token", String(reauthToken));
       }
       return headers;
     },

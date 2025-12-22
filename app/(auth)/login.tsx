@@ -8,6 +8,7 @@ import { useLoginMutation } from "@/features/auth/authApi";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { setToken, setTwoFAState } from "@/features/auth/authSlice";
 import { saveAuthSession } from "@/lib/secureStore";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 export default function LoginScreen() {
     const [formData, setFormData] = useState({
@@ -79,16 +80,7 @@ export default function LoginScreen() {
                     </View>
 
                     <View className="gap-6">
-                        <Pressable
-                            className="flex-row items-center justify-center gap-2 bg-white border border-gray-300 rounded-md py-3"
-                            disabled={isSubmitting}
-                            onPress={() => { }}
-                        >
-                            <View className="w-5 h-5 items-center justify-center">
-                                <Text className="text-lg font-bold text-blue-600">G</Text>
-                            </View>
-                            <Text className="text-gray-900 font-medium">Continue with Google</Text>
-                        </Pressable>
+                        <GoogleLoginButton className="w-full" disabled={isSubmitting} />
 
                         <View className="relative">
                             <View className="flex-row items-center">
@@ -136,7 +128,7 @@ export default function LoginScreen() {
                             />
                             <View className="flex-row justify-end items-center">
                                 <Pressable onPress={() => { }}>
-                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.push('/(auth)/accountType')}>Forgot Password?</Text>
+                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.push('/(auth)/verify2FAForm')}>Forgot Password?</Text>
                                 </Pressable>
                             </View>
 

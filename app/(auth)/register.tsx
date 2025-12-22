@@ -6,6 +6,12 @@ import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useRegisterMutation, useSendMobileOTPMutation, useSendEmailOTPMutation, useVerifyMobileOTPMutation, useVerifyEmailOTPMutation, useLazyCheckUsernameQuery } from "@/features/auth/authApi";
+import { router } from "expo-router";
+import { useAppDispatch } from "@/lib/redux/hooks";
+import { setToken } from "@/features/auth/authSlice";
+import { saveAuthSession } from "@/lib/secureStore";
+import GoogleSignupButton from "./GoogleSignupButton";
 
 export default function SignUpScreen() {
     const [formData, setFormData] = useState({
@@ -33,7 +39,16 @@ export default function SignUpScreen() {
     const [otpVerified, setOtpVerified] = useState(false);
     const [otpTimer, setOtpTimer] = useState(0);
     const [otpCode, setOtpCode] = useState('');
-    const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+    const dispatch = useAppDispatch();
+    const [checkUsernameTrigger, { isFetching: isCheckingUsername, data: usernameData, error: usernameError }] = useLazyCheckUsernameQuery();
+    const usernameStatus = useMemo<'idle' | 'checking' | 'available' | 'taken'>(() => {
+        if (!formData.username) return 'idle';
+        if (isCheckingUsername) return 'checking';
+        if (usernameError) return 'taken';
+        if (usernameData?.data?.isAvailable === true) return 'available';
+        if (usernameData?.data?.isAvailable === false) return 'taken';
+        return 'idle';
+    }, [formData.username, isCheckingUsername, usernameData, usernameError]);
     const usernameMessage = useMemo(() => {
         if (usernameStatus === 'available') return { type: 'success' as const, text: 'Username is available' };
         if (usernameStatus === 'taken') return { type: 'error' as const, text: 'Username is taken' };
@@ -53,17 +68,13 @@ export default function SignUpScreen() {
     );
 
     useEffect(() => {
-        if (!formData.username) {
-            setUsernameStatus('idle');
-            return;
-        }
-        setUsernameStatus('checking');
         const t = setTimeout(() => {
-            const taken = /[^a-z0-9_]/i.test(formData.username) || formData.username.length < 3;
-            setUsernameStatus(taken ? 'taken' : 'available');
-        }, 500);
+            if (formData.username && formData.username.length >= 3) {
+                checkUsernameTrigger(formData.username);
+            }
+        }, 400);
         return () => clearTimeout(t);
-    }, [formData.username]);
+    }, [formData.username, checkUsernameTrigger]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
@@ -82,7 +93,13 @@ export default function SignUpScreen() {
         setOtpCode('');
     };
 
-    const handleSendOTP = () => {
+    const [sendMobileOTP, { isLoading: sendingMobile }] = useSendMobileOTPMutation();
+    const [sendEmailOTP, { isLoading: sendingEmail }] = useSendEmailOTPMutation();
+    const [verifyMobileOTP, { isLoading: verifyingMobile }] = useVerifyMobileOTPMutation();
+    const [verifyEmailOTP, { isLoading: verifyingEmail }] = useVerifyEmailOTPMutation();
+    const [register, { isLoading: isRegistering, error: registerError }] = useRegisterMutation();
+
+    const handleSendOTP = async () => {
         if (contactMethod === 'email' && !formData.email) {
             setErrors((e) => ({ ...e, email: 'Email is required' }));
             return;
@@ -92,34 +109,97 @@ export default function SignUpScreen() {
             return;
         }
         setErrors((e) => ({ ...e, email: '', mobile: '', contact: '' }));
-        setOtpSent(true);
-        setOtpVerified(false);
-        setOtpTimer(60);
-    };
-
-    const handleVerifyOTP = () => {
-        if (otpCode.length === 6) {
-            setOtpVerified(true);
+        try {
+            if (contactMethod === 'email') {
+                const res = await sendEmailOTP({ email: formData.email, purpose: "verification" }).unwrap();
+                if (res.success) {
+                    setOtpSent(true);
+                    setOtpVerified(false);
+                    setOtpTimer(60);
+                } else {
+                    setErrors((e) => ({ ...e, form: res.message || 'Failed to send OTP' }));
+                }
+            } else {
+                const res = await sendMobileOTP({ mobile: formData.mobile, purpose: "verification" }).unwrap();
+                if (res.success) {
+                    setOtpSent(true);
+                    setOtpVerified(false);
+                    setOtpTimer(60);
+                } else {
+                    setErrors((e) => ({ ...e, form: res.message || 'Failed to send OTP' }));
+                }
+            }
+        } catch (e: any) {
+            const message = e?.data?.message || e?.error || 'Failed to send OTP';
+            setErrors((ee) => ({ ...ee, form: message }));
         }
     };
 
-    const handleSubmit = () => {
-        setIsSubmitting(true);
-        setTimeout(() => {
-            const newErrors: typeof errors = {};
-            if (!formData.username) newErrors.username = 'Username is required';
-            if (contactMethod === 'email' && !formData.email) newErrors.email = 'Email is required';
-            if (contactMethod === 'mobile' && !formData.mobile) newErrors.mobile = 'Mobile is required';
-            if (!formData.password) newErrors.password = 'Password is required';
-            if (!formData.confirmPassword) newErrors.confirmPassword = 'Confirm your password';
-            if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
-                newErrors.confirmPassword = 'Passwords do not match';
+    const handleVerifyOTP = async () => {
+        if (otpCode.length !== 6) return;
+        try {
+            if (contactMethod === 'email') {
+                const res = await verifyEmailOTP({ email: formData.email, otp: otpCode, purpose: "register" }).unwrap();
+                if (res.success) {
+                    setOtpVerified(true);
+                } else {
+                    setErrors((e) => ({ ...e, form: res.message || 'Invalid code' }));
+                }
+            } else {
+                const res = await verifyMobileOTP({ mobile: formData.mobile, otp: otpCode }).unwrap();
+                if (res.success) {
+                    setOtpVerified(true);
+                } else {
+                    setErrors((e) => ({ ...e, form: res.message || 'Invalid code' }));
+                }
             }
-            if (!formData.acceptTerms) newErrors.acceptTerms = 'You must accept terms';
-            setErrors(newErrors);
-            setAuthError(undefined);
+        } catch (e: any) {
+            const message = e?.data?.message || e?.error || 'Verification failed';
+            setErrors((ee) => ({ ...ee, form: message }));
+        }
+    };
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        const newErrors: typeof errors = {};
+        if (!formData.username) newErrors.username = 'Username is required';
+        if (contactMethod === 'email' && !formData.email) newErrors.email = 'Email is required';
+        if (contactMethod === 'mobile' && !formData.mobile) newErrors.mobile = 'Mobile is required';
+        if (!formData.password) newErrors.password = 'Password is required';
+        if (!formData.confirmPassword) newErrors.confirmPassword = 'Confirm your password';
+        if (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'Passwords do not match';
+        }
+        if (!formData.acceptTerms) newErrors.acceptTerms = 'You must accept terms';
+        setErrors(newErrors);
+        setAuthError(undefined);
+        if (Object.keys(newErrors).length > 0) {
             setIsSubmitting(false);
-        }, 600);
+            return;
+        }
+        try {
+            const res = await register({
+                username: formData.username,
+                email: contactMethod === 'email' ? formData.email : undefined,
+                mobile: contactMethod === 'mobile' ? formData.mobile : undefined,
+                password: formData.password,
+            }).unwrap();
+            const token = res?.data?.accessToken;
+            const refreshToken = res?.data?.refreshToken;
+            const expiresIn = res?.data?.expiresIn;
+            if (token) {
+                await saveAuthSession({ accessToken: token, refreshToken, expiresIn });
+                dispatch(setToken(token));
+                router.push('/(auth)/accountType');
+            } else {
+                setAuthError(res?.message || 'Registration succeeded without token');
+            }
+        } catch (e: any) {
+            const message = e?.data?.message || e?.error || 'Registration failed';
+            setAuthError(message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -142,16 +222,7 @@ export default function SignUpScreen() {
                     </View>
 
                     <View className="gap-6">
-                        <Pressable
-                            className="flex-row items-center justify-center gap-2 bg-white border border-gray-300 rounded-md py-3"
-                            disabled={isSubmitting}
-                            onPress={() => { }}
-                        >
-                            <View className="w-5 h-5 items-center justify-center">
-                                <Text className="text-lg font-bold text-primary">G</Text>
-                            </View>
-                            <Text className="text-gray-900 font-medium">Continue with Google</Text>
-                        </Pressable>
+                        <GoogleSignupButton className="w-full" disabled={isSubmitting} />
 
                         <View className="relative">
                             <View className="flex-row items-center">
@@ -251,9 +322,11 @@ export default function SignUpScreen() {
                                     />
                                     {formData.email && !otpVerified ? (
                                         <Button
-                                            title={otpSent && otpTimer > 0 ? `Resend (${otpTimer}s)` : "Send OTP"}
+                                            title={
+                                                (sendingEmail ? "Sending..." : (otpSent && otpTimer > 0 ? `Resend (${otpTimer}s)` : "Send OTP"))
+                                            }
                                             onPress={handleSendOTP}
-                                            disabled={!formData.email || (otpSent && otpTimer > 0)}
+                                            disabled={sendingEmail || !formData.email || (otpSent && otpTimer > 0)}
                                             className="self-start"
                                         />
                                     ) : null}
@@ -281,9 +354,11 @@ export default function SignUpScreen() {
                                     </View>
                                     {formData.mobile && !otpVerified ? (
                                         <Button
-                                            title={otpSent && otpTimer > 0 ? `Resend (${otpTimer}s)` : "Send OTP"}
+                                            title={
+                                                (sendingMobile ? "Sending..." : (otpSent && otpTimer > 0 ? `Resend (${otpTimer}s)` : "Send OTP"))
+                                            }
                                             onPress={handleSendOTP}
-                                            disabled={!formData.mobile || (otpSent && otpTimer > 0)}
+                                            disabled={sendingMobile || !formData.mobile || (otpSent && otpTimer > 0)}
                                             className="self-start"
                                         />
                                     ) : null}
@@ -302,9 +377,9 @@ export default function SignUpScreen() {
                                         variant="outline"
                                     />
                                     <Button
-                                        title="Verify"
+                                        title={(verifyingEmail || verifyingMobile) ? "Verifying..." : "Verify"}
                                         onPress={handleVerifyOTP}
-                                        disabled={!otpCode}
+                                        disabled={!otpCode || verifyingEmail || verifyingMobile}
                                     />
                                     <View className="flex-row items-center justify-between">
                                         <Text className="text-gray-500">
@@ -390,11 +465,11 @@ export default function SignUpScreen() {
                             {errors.acceptTerms ? <Text className="text-sm text-red-600">{errors.acceptTerms}</Text> : null}
 
                             <Button
-                                title={isSubmitting ? "Creating Account..." : "Create Account"}
+                                title={(isSubmitting || isRegistering) ? "Creating Account..." : "Create Account"}
                                 variant='primary'
                                 onPress={handleSubmit}
                                 disabled={
-                                    isSubmitting ||
+                                    isSubmitting || isRegistering ||
                                     !otpVerified ||
                                     !formData.acceptTerms ||
                                     usernameStatus === 'taken' ||

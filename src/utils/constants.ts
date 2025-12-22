@@ -24,3 +24,15 @@ export const SERVICES = {
     env('EXPO_PUBLIC_REALTIME_BASE_URL') ??
     env('NEXT_PUBLIC_REALTIME_BASE_URL', 'http://localhost:3005'),
 } as const;
+
+export const GOOGLE_OAUTH = {
+  ACCESS_TOKEN:
+    env('EXPO_PUBLIC_GOOGLE_CLIENT_ID') ??
+    env('NEXT_PUBLIC_GOOGLE_CLIENT_ID', '250605790747-b8f43ia9k0iepvo7ebnv9r1oou6a50j0.apps.googleusercontent.com'),
+  ANDROID_CLIENT_ID:
+    env('EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID') ??
+    env('NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID', '934535478656-g9fne9318g4rd927s2ek3hv814p6874j.apps.googleusercontent.com'),
+  IOS_CLIENT_ID:
+    env('EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID') ??
+    env('NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID', '934535478656-393642212212.apps.googleusercontent.com'),
+} as const;
