@@ -42,7 +42,7 @@ export default function LoginScreen() {
             const tempToken = res.tempToken ?? res.data?.tempToken;
             if (requires2FA && tempToken) {
                 dispatch(setTwoFAState({ tempToken, requires2FA }));
-                router.push('/auth/verify-2fa');
+                router.push('/auth/verify2FAForm');
             } else if (token) {
                 const refreshToken = res.data?.refreshToken;
                 const expiresIn = res.data?.expiresIn;
@@ -128,7 +128,7 @@ export default function LoginScreen() {
                             />
                             <View className="flex-row justify-end items-center">
                                 <Pressable onPress={() => { }}>
-                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.push('/(auth)/verify2FAForm')}>Forgot Password?</Text>
+                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.push('/(auth)/forgot-password')}>Forgot Password?</Text>
                                 </Pressable>
                             </View>
 
