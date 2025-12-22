@@ -29,6 +29,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.nuke0p.wovapp"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a99db09e-b5a5-4c34-b15a-f6cbff2a135f"
       }
     }
   }
