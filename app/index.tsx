@@ -16,7 +16,7 @@ export default function Index() {
       if (!mounted) return;
       if (token) {
         dispatch(setToken(token));
-        setHref('/home/feed');
+        setHref('/(dashboard)/feed');
       } else {
         setHref('/(auth)/login');
       }

@@ -13,7 +13,7 @@ interface Props {
   redirectTo?: string;
 }
 
-export default function Verify2FAForm({ redirectTo = "/home/feed" }: Props) {
+export default function Verify2FAForm({ redirectTo = "/(dashboard)/feed" }: Props) {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
   const dispatch = useAppDispatch();
