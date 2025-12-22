@@ -406,7 +406,7 @@ export default function SignUpScreen() {
                         <View className="items-center">
                             <Text className="text-sm text-gray-500">
                                 Already have an account?{" "}
-                                <Link href="/auth/login" className="text-primary">Sign in</Link>
+                                <Link href="/(auth)/login" className="text-primary">Sign in</Link>
                             </Text>
                         </View>
                     </View>

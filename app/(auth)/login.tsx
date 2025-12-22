@@ -132,7 +132,7 @@ export default function LoginScreen() {
                             />
                             <View className="flex-row justify-end items-center">
                                 <Pressable onPress={() => { }}>
-                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.push('/auth/accountType')}>Forgot Password?</Text>
+                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.push('/(auth)/accountType')}>Forgot Password?</Text>
                                 </Pressable>
                             </View>
 
@@ -146,7 +146,7 @@ export default function LoginScreen() {
                         <View className="items-center">
                             <Text className="text-sm text-gray-500">
                                 Don't have an account?{" "}
-                                <Text className="text-primary font-medium" onPress={() => router.push('/auth/register')}>Sign up</Text>
+                                <Text className="text-primary font-medium" onPress={() => router.push('/(auth)/register')}>Sign up</Text>
                             </Text>
                         </View>
                     </View>
