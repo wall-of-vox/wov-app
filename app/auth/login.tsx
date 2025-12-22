@@ -40,10 +40,10 @@ export default function LoginScreen() {
             const tempToken = res.tempToken ?? res.data?.tempToken;
             if (requires2FA && tempToken) {
                 dispatch(setTwoFAState({ tempToken, requires2FA }));
-                router.replace('/auth/verify-2fa');
+                router.push('/auth/verify-2fa');
             } else if (token) {
                 dispatch(setToken(token));
-                router.replace('/home/feed');
+                router.push('/home/feed');
             } else {
                 setAuthError(res.message ?? 'Unexpected response');
             }
@@ -132,7 +132,7 @@ export default function LoginScreen() {
                             />
                             <View className="flex-row justify-end items-center">
                                 <Pressable onPress={() => { }}>
-                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.replace('/auth/accountType')}>Forgot Password?</Text>
+                                    <Text className="text-sm font-medium text-red-600" onPress={() => router.push('/auth/accountType')}>Forgot Password?</Text>
                                 </Pressable>
                             </View>
 
@@ -146,7 +146,7 @@ export default function LoginScreen() {
                         <View className="items-center">
                             <Text className="text-sm text-gray-500">
                                 Don't have an account?{" "}
-                                <Text className="text-primary font-medium" onPress={() => router.replace('/auth/register')}>Sign up</Text>
+                                <Text className="text-primary font-medium" onPress={() => router.push('/auth/register')}>Sign up</Text>
                             </Text>
                         </View>
                     </View>
