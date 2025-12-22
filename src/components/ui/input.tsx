@@ -32,7 +32,7 @@ export default function Input({
   editable = true,
   ...props
 }: InputProps) {
-  const baseInput = 'border rounded-full px-6';
+  const baseInput = 'border rounded-full px-6 py-3';
   const variants = {
     default: 'border-gray-300 bg-white',
     active: 'border-primary bg-white',
@@ -55,6 +55,7 @@ export default function Input({
     variants[variant],
     error ? 'border-red-500' : '',
     !editable ? 'opacity-50' : '',
+    'text-gray-900',
   ]
     .filter(Boolean)
     .join(' ');
@@ -63,7 +64,12 @@ export default function Input({
     <View className="gap-2">
       {label ? <Text className="text-gray-700">{label}</Text> : null}
       <View className="relative">
-        <TextInput className={inputClassName} editable={editable} {...props} />
+        <TextInput
+          className={inputClassName}
+          editable={editable}
+          placeholderTextColor={props.placeholderTextColor ?? '#9CA3AF'}
+          {...props}
+        />
         {right ? (
           <View className="absolute right-0 top-0 h-full px-4 py-2 items-center justify-center">
             {right}
