@@ -7,6 +7,7 @@ import Input from "@/components/ui/input";
 import { useLoginMutation } from "@/features/auth/authApi";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { setToken, setTwoFAState } from "@/features/auth/authSlice";
+import { saveAuthSession } from "@/lib/secureStore";
 
 export default function LoginScreen() {
     const [formData, setFormData] = useState({
@@ -42,6 +43,9 @@ export default function LoginScreen() {
                 dispatch(setTwoFAState({ tempToken, requires2FA }));
                 router.push('/auth/verify-2fa');
             } else if (token) {
+                const refreshToken = res.data?.refreshToken;
+                const expiresIn = res.data?.expiresIn;
+                await saveAuthSession({ accessToken: token, refreshToken, expiresIn });
                 dispatch(setToken(token));
                 router.push('/home/feed');
             } else {
