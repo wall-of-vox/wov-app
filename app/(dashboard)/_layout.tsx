@@ -1,11 +1,10 @@
-import { Stack } from "expo-router";
+import { Slot, Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { setToken } from "@/features/auth/authSlice";
 import { getAccessToken } from "@/lib/secureStore";
 import { useGetCurrentUserQuery } from "@/features/user/userApi";
-import { Redirect } from "expo-router";
 
 export default function DashboardLayout() {
   const dispatch = useAppDispatch();
@@ -64,6 +63,5 @@ export default function DashboardLayout() {
     return <Redirect href={route} />;
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <Slot />;
 }
-

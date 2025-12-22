@@ -13,16 +13,16 @@ export const API_CONFIG = {
 export const SERVICES = {
   USER_BASE_URL:
     env('EXPO_PUBLIC_USER_BASE_URL') ??
-    env('NEXT_PUBLIC_USER_BASE_URL', 'http://localhost:3002'),
+    env('NEXT_PUBLIC_USER_BASE_URL', 'https://api.wallofvox.com/user'),
   FOLLOW_BASE_URL:
     env('EXPO_PUBLIC_FOLLOW_BASE_URL') ??
-    env('NEXT_PUBLIC_FOLLOW_BASE_URL', 'http://localhost:3003'),
+    env('NEXT_PUBLIC_FOLLOW_BASE_URL', 'https://api.wallofvox.com/follow'),
   REVIEW_BASE_URL:
     env('EXPO_PUBLIC_REVIEW_BASE_URL') ??
-    env('NEXT_PUBLIC_REVIEW_BASE_URL', 'http://localhost:3004'),
+    env('NEXT_PUBLIC_REVIEW_BASE_URL', 'https://api.wallofvox.com/review'),
   REALTIME_BASE_URL:
     env('EXPO_PUBLIC_REALTIME_BASE_URL') ??
-    env('NEXT_PUBLIC_REALTIME_BASE_URL', 'http://localhost:3005'),
+    env('NEXT_PUBLIC_REALTIME_BASE_URL', 'https://api.wallofvox.com/realtime'),
 } as const;
 
 export const GOOGLE_OAUTH = {

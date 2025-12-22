@@ -48,7 +48,7 @@ export default function LoginScreen() {
                 const expiresIn = res.data?.expiresIn;
                 await saveAuthSession({ accessToken: token, refreshToken, expiresIn });
                 dispatch(setToken(token));
-                router.push('/(dashboard)/feed');
+                router.push('/(dashboard)/(tabs)/feed');
             } else {
                 setAuthError(res.message ?? 'Unexpected response');
             }

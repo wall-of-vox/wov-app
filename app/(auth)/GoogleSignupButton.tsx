@@ -18,7 +18,7 @@ interface GoogleSignupButtonProps {
 
 export default function GoogleSignupButton({
   onSuccess,
-  redirectTo = "/(dashboard)/feed",
+  redirectTo = "/(dashboard)/(tabs)/feed",
   className = "",
   disabled = false,
   getAccessToken,

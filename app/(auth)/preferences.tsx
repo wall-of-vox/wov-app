@@ -64,7 +64,7 @@ export default function Preferences() {
         try {
             const result = await setUserProfile(payload as { type: "personal" | "professional"; professionService?: string; preferredCategories?: string[] }).unwrap();
             setIsLoading(false);
-            router.push('/(dashboard)/feed');
+            router.push('/(dashboard)/(tabs)/feed');
         } catch (e: any) {
             setIsLoading(false);
             setError(

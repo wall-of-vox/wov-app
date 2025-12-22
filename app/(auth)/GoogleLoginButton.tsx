@@ -18,7 +18,7 @@ interface GoogleLoginButtonProps {
 
 export default function GoogleLoginButton({
   onSuccess,
-  redirectTo = "/(dashboard)/feed",
+  redirectTo = "/(dashboard)/(tabs)/feed",
   className = "",
   disabled = false,
   getAccessToken,
