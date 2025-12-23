@@ -62,7 +62,7 @@ export default function TabsLayout() {
             ProfileImage ? (
               <RNImage
                 source={{ uri: ProfileImage }}
-                style={{ width: size * iconScale, height: size * iconScale, borderRadius: (size * iconScale) / 2 }}
+                style={{ width: size * iconScale + 2, height: size * iconScale + 2, borderRadius: (size * iconScale) / 2 }}
                 className="border border-mutedForeground/40"
               />
             ) : (
