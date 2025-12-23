@@ -11,41 +11,47 @@ export default function TabsLayout() {
   const ProfileImage = isProfessional ? data?.logo : data?.profilePhoto;
 
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: { paddingTop: 6 },
+      }}
+    >
       <Tabs.Screen
         name="feed"
         options={{
-          title: "Feed",
-          tabBarIcon: ({ color, size }) => <House color={color} size={size} />,
+          tabBarLabel: () => null,
+          tabBarIcon: ({ color, size }) => <House color={color} size={size + 4} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Explore",
-          tabBarIcon: ({ color, size }) => <Search color={color} size={size} />,
+          tabBarLabel: () => null,
+          tabBarIcon: ({ color, size }) => <Search color={color} size={size + 4} />,
         }}
       />
       <Tabs.Screen
         name="favorites"
         options={{
-          title: "Favorites",
-          tabBarIcon: ({ color, size }) => <Heart color={color} size={size} />,
+          tabBarLabel: () => null,
+          tabBarIcon: ({ color, size }) => <Heart color={color} size={size + 4} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          tabBarLabel: () => null,
           tabBarIcon: ({ color, size }) =>
             ProfileImage ? (
               <RNImage
                 source={{ uri: ProfileImage }}
-                style={{ width: size, height: size, borderRadius: size / 2 }}
+                style={{ width: size + 4, height: size + 4, borderRadius: (size + 4) / 2 }}
                 className="border border-mutedForeground/40"
               />
             ) : (
-              <User color={color} size={size} />
+              <User color={color} size={size + 4} />
             ),
         }}
       />
