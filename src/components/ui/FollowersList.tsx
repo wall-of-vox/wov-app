@@ -131,16 +131,25 @@ export default function FollowersList({
               className="flex-row items-center justify-between gap-3"
             >
               <View className="flex-row items-center gap-4">
-                <Avatar size={42}>
-                  <AvatarImage source={avatarSrc ? { uri: avatarSrc } : undefined} style={{ backgroundColor: bgColor }} />
-                  <AvatarFallback>
-                    {String(displayName || targetId)
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
+                {avatarSrc ? (
+                  <Avatar size={42}>
+                    <AvatarImage source={avatarSrc ? { uri: avatarSrc } : undefined} style={{ backgroundColor: bgColor }} />
+                    <AvatarFallback>
+                      {String(displayName || targetId)
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}
                   </AvatarFallback>
-                </Avatar>
+                </Avatar>) : (
+                  <View className="w-12 h-12 bg-mutedForeground/20 rounded-full flex items-center justify-center">
+                    <Text className="text-white text-2xl font-bold">{String(displayName || targetId)
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}</Text>
+                  </View>
+                )}
                 <Text className="font-medium">{displayName}</Text>
               </View>
               {renderFollowButton()}
