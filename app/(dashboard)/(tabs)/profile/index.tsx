@@ -154,8 +154,26 @@ export default function ProfileScreen() {
 
                     {/* Child Components */}
                     {activeTab === 'reviews' ? <ReviewsList reviews={reviews} /> : null}
-                    {activeTab === 'followers' ? <FollowersList followers={followers} /> : null}
-                    {activeTab === 'following' ? <FollowingList following={following} /> : null}
+                    {activeTab === 'followers' ? (
+                        <FollowersList
+                            followers={followers}
+                            isLoading={followersIsLoading}
+                            userId={userId}
+                            loggedInUserId={userId}
+                            nextCursor={followersResp?.pagination?.nextCursor}
+                            hasNext={!!followersResp?.pagination?.hasNext}
+                        />
+                    ) : null}
+                    {activeTab === 'following' ? (
+                        <FollowingList
+                            following={following}
+                            isLoading={followingIsLoading}
+                            userId={userId}
+                            loggedInUserId={userId}
+                            nextCursor={followingResp?.pagination?.nextCursor}
+                            hasNext={!!followingResp?.pagination?.hasNext}
+                        />
+                    ) : null}
                 </View>
             </ScrollView>
         </SafeAreaView>

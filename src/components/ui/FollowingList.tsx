@@ -3,8 +3,9 @@ import { Users, UserPlus } from "lucide-react-native";
 import { router } from "expo-router";
 import Button from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useFollowUserMutation, useUnfollowUserMutation } from "@/features/follow/followApi";
+import { useGetFollowingQuery, useFollowUserMutation, useUnfollowUserMutation } from "@/features/follow/followApi";
 import { UserPreferenceKey } from "@/types";
+import { useEffect, useState } from "react";
 
 type Edge = {
   id?: string;
@@ -28,14 +29,55 @@ export default function FollowingList({
   isLoading = false,
   type = "dashboard",
   loggedInUserId,
+  userId,
+  nextCursor,
+  hasNext,
 }: {
   following?: Edge[];
   isLoading?: boolean;
   type?: string;
   loggedInUserId?: string;
+  userId?: string;
+  nextCursor?: string | null;
+  hasNext?: boolean;
 }) {
   const [followUser] = useFollowUserMutation();
   const [unfollowUser] = useUnfollowUserMutation();
+  const [items, setItems] = useState<Edge[]>(following || []);
+  const [cursor, setCursor] = useState<string | null | undefined>(nextCursor);
+  const [hasNextLocal, setHasNextLocal] = useState<boolean>(!!hasNext);
+  const [loadMoreRequested, setLoadMoreRequested] = useState<boolean>(false);
+
+  useEffect(() => {
+    setItems(following || []);
+    setCursor(nextCursor);
+    setHasNextLocal(!!hasNext);
+  }, [following, nextCursor, hasNext]);
+
+  const { data: moreResp, isFetching: moreFetching } = useGetFollowingQuery(
+    { userId, limit: 20, cursor: cursor ?? undefined, loggedInUserId },
+    { skip: !userId || !cursor || !loadMoreRequested }
+  );
+
+  useEffect(() => {
+    if (!moreResp) return;
+    const newEdges: Edge[] = Array.isArray(moreResp?.data) ? moreResp.data : [];
+    if (newEdges.length > 0) {
+      const existingKeys = new Set(
+        items.map((e) => e.id || e.followeeId || e.user_data?.userId || "")
+      );
+      const merged = items.concat(
+        newEdges.filter((e) => {
+          const key = e.id || e.followeeId || e.user_data?.userId || "";
+          return key && !existingKeys.has(key);
+        })
+      );
+      setItems(merged);
+    }
+    setCursor(moreResp?.pagination?.nextCursor ?? null);
+    setHasNextLocal(!!moreResp?.pagination?.hasNext);
+    setLoadMoreRequested(false);
+  }, [moreResp]);
 
   if (isLoading) {
     return (
@@ -58,7 +100,7 @@ export default function FollowingList({
     );
   }
 
-  if (following.length === 0) {
+  if (items.length === 0) {
     return (
       <View className="border border-gray-200 rounded-xl p-6 items-center">
         <Users size={48} color="#6B7280" />
@@ -75,7 +117,7 @@ export default function FollowingList({
 
   return (
     <View className="w-full gap-3">
-      {following.map((edge) => {
+      {items.map((edge) => {
         const targetId = edge.followeeId || edge.user_data?.userId || edge.id || "";
         const href =
           type === "dashboard" || type === "explore"
@@ -158,6 +200,20 @@ export default function FollowingList({
           </View>
         );
       })}
+      {hasNextLocal ? (
+        <View className="items-center mt-2">
+          <Button
+            title={moreFetching ? "Loading..." : "Load More"}
+            variant="outline"
+            onPress={() => {
+              if (!moreFetching && hasNextLocal && cursor) {
+                setLoadMoreRequested(true);
+              }
+            }}
+            disabled={moreFetching || !hasNextLocal || !cursor}
+          />
+        </View>
+      ) : null}
     </View>
   );
 }
