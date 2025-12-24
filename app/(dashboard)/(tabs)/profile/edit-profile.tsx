@@ -237,19 +237,6 @@ export default function EditProfileScreen() {
     setIsDirty(true);
   };
 
-  const resolveIcon = (platformId: string) => {
-    const localIcon =
-      platformId === "linkedin" ? require("../../../../assets/social-icons/linkedin.svg") :
-      platformId === "instagram" ? require("../../../../assets/social-icons/instagram.svg") :
-      platformId === "twitter" || platformId === "x" ? require("../../../../assets/social-icons/x.svg") :
-      platformId === "facebook" ? require("../../../../assets/social-icons/facebook.svg") :
-      platformId === "youtube" ? require("../../../../assets/social-icons/youtube.svg") :
-      platformId === "github" ? require("../../../../assets/social-icons/github.svg") :
-      platformId === "dribbble" ? require("../../../../assets/social-icons/dribbble.svg") :
-      undefined;
-    return localIcon ? RNImage.resolveAssetSource(localIcon)?.uri : undefined;
-  };
-
   useEffect(() => {
     const links: Record<string, string> = {};
     selectedPlatforms.forEach((p) => {
@@ -740,11 +727,10 @@ export default function EditProfileScreen() {
                         <View className="flex-row items-center gap-2 flex-1">
                           {selectedPlatforms.length > 0 ? (
                             selectedPlatforms.map((platform) => {
-                              const iconUri = resolveIcon(platform.id);
                               return (
                                 <View key={platform.id}>
-                                  {iconUri ? (
-                                    <SvgUri width={20} height={20} uri={iconUri} />
+                                  {platform.icon ? (
+                                    <SvgUri width={20} height={20} uri={platform.icon} />
                                   ) : (
                                     <Text className="text-xs text-gray-800">{platform.name}</Text>
                                   )}
