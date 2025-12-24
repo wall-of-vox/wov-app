@@ -143,7 +143,16 @@ export default function ProfileScreen() {
                     </View>
 
                     {/* Child Components */}
-                    {activeTab === 'reviews' ? <ReviewsList reviews={reviews} /> : null}
+                    {activeTab === 'reviews' ? (
+                        <ReviewsList
+                            reviews={reviews}
+                            isLoading={reviewsIsLoading}
+                            showUser={true}
+                            type="dashboard"
+                            userType={isProfessional ? 'professional' : 'personal'}
+                            loggedInUserId={userId}
+                        />
+                    ) : null}
                     {activeTab === 'followers' ? (
                         <FollowersList
                             followers={followers}
