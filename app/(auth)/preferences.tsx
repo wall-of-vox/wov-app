@@ -128,7 +128,7 @@ export default function Preferences() {
         </View>
     );
 
-    const renderItem = ({ item }: { item: { id: string; name: string; img: any } }) => {
+    const renderItem = ({ item }: { item: { id: string; name: string; img: string } }) => {
         const selected = selectedCategories.includes(item.name);
         return (
             <TouchableOpacity
@@ -138,7 +138,7 @@ export default function Preferences() {
             >
                 <View className="rounded-xl overflow-hidden">
                     <Image
-                        source={item.img}
+                        source={{ uri: item.img }}
                         className="w-full h-36"
                         resizeMode="cover"
                     />

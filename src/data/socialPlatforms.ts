@@ -3,7 +3,7 @@ const socialPlatforms = [
   {
     id: 'linkedin',
     name: 'Connect on LinkedIn',
-    icon: '../../../assets/social-icons/linkedin.svg',
+    icon: 'https://www.wallofvox.com/assets/social-icons/linkedin.svg',
     placeholder: 'https://linkedin.com/in/username',
     urlPattern: /^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/,
     color: 'bg-blue-600'
@@ -11,7 +11,7 @@ const socialPlatforms = [
   {
     id: 'instagram',
     name: 'Me on Instagram',
-    icon: '../../../assets/social-icons/instagram.svg',
+    icon: 'https://www.wallofvox.com/assets/social-icons/instagram.svg',
     placeholder: 'https://instagram.com/username',
     urlPattern: /^https?:\/\/(www\.)?instagram\.com\/[a-zA-Z0-9_.]+\/?$/,
     color: 'bg-pink-600'
@@ -19,7 +19,7 @@ const socialPlatforms = [
   {
     id: 'twitter',
     name: 'Follow me on X',
-    icon: '../../../assets/social-icons/x.svg',
+    icon: 'https://www.wallofvox.com/assets/social-icons/x.svg',
     placeholder: 'https://x.com/username',
     urlPattern: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/?$/,
     color: 'bg-black'
@@ -27,7 +27,7 @@ const socialPlatforms = [
   {
     id: 'facebook',
     name: 'Show me on Facebook',
-    icon: '../../../assets/social-icons/facebook.svg',
+    icon: 'https://www.wallofvox.com/assets/social-icons/facebook.svg',
     placeholder: 'https://facebook.com/username',
     urlPattern: /^https?:\/\/(www\.)?facebook\.com\/[a-zA-Z0-9.]+\/?$/,
     color: 'bg-blue-700'
@@ -35,7 +35,7 @@ const socialPlatforms = [
   {
     id: 'youtube',
     name: 'My YouTube Channel',
-    icon: '../../../assets/social-icons/youtube.svg',
+    icon: 'https://www.wallofvox.com/assets/social-icons/youtube.svg',
     placeholder: 'https://youtube.com/@username',
     urlPattern: /^https?:\/\/(www\.)?youtube\.com\/(channel\/|@)[a-zA-Z0-9_-]+\/?$/,
     color: 'bg-red-600'
@@ -43,7 +43,7 @@ const socialPlatforms = [
   {
     id: 'github',
     name: 'GitHub Profile',
-    icon: '../../../assets/social-icons/github.svg',
+    icon: 'https://www.wallofvox.com/assets/social-icons/github.svg',
     placeholder: 'https://github.com/username',
     urlPattern: /^https?:\/\/(www\.)?github\.com\/[a-zA-Z0-9-]+\/?$/,
     color: 'bg-gray-800'
@@ -51,7 +51,7 @@ const socialPlatforms = [
   {
     id: 'dribbble',
     name: 'Dribbble Profile',
-    icon: '../../../assets/social-icons/dribbble.svg',
+    icon: 'https://www.wallofvox.com/assets/social-icons/dribbble.svg',
     placeholder: 'https://dribbble.com/username',
     urlPattern: /^https?:\/\/(www\.)?dribbble\.com\/[a-zA-Z0-9-]+\/?$/,
     color: 'bg-pink-600'

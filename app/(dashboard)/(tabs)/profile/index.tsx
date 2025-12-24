@@ -84,16 +84,6 @@ export default function ProfileScreen() {
                             <View className="flex-row gap-3 mb-3">
                                 {Object.entries((user as any)?.socialLinks || {}).map(([platform, url]) => {
                                     const meta = getSocialMeta(String(platform));
-                                    const localIcon =
-                                        meta?.id === "linkedin" ? require("../../../../assets/social-icons/linkedin.svg") :
-                                            meta?.id === "instagram" ? require("../../../../assets/social-icons/instagram.svg") :
-                                                meta?.id === "twitter" || meta?.id === "x" ? require("../../../../assets/social-icons/x.svg") :
-                                                    meta?.id === "facebook" ? require("../../../../assets/social-icons/facebook.svg") :
-                                                        meta?.id === "youtube" ? require("../../../../assets/social-icons/youtube.svg") :
-                                                            meta?.id === "github" ? require("../../../../assets/social-icons/github.svg") : 
-                                                                meta?.id === "dribbble" ? require("../../../../assets/social-icons/dribbble.svg") :
-                                                                    undefined;
-                                    const uri = localIcon ? RNImage.resolveAssetSource(localIcon)?.uri : undefined;
                                     return (
                                         <Pressable
                                             key={platform}
@@ -102,8 +92,8 @@ export default function ProfileScreen() {
                                             onPress={() => (url ? Linking.openURL(String(url)) : undefined)}
                                             className="p-1"
                                         >
-                                            {uri ? (
-                                                <SvgUri width={socialIconSize} height={socialIconSize} uri={uri} />
+                                            {meta?.icon ? (
+                                                <SvgUri width={socialIconSize} height={socialIconSize} uri={meta?.icon} />
                                             ) : (
                                                 <LinkIcon size={socialIconSize} color="#ffffff" />
                                             )}

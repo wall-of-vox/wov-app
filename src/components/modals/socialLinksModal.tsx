@@ -41,19 +41,6 @@ export default function SocialLinksModal({
   updatePlatformUrl,
   getPlaceholder,
 }: Props) {
-  const resolveIcon = (platformId: string) => {
-    const localIcon =
-      platformId === "linkedin" ? require("../../../assets/social-icons/linkedin.svg") :
-      platformId === "instagram" ? require("../../../assets/social-icons/instagram.svg") :
-      platformId === "twitter" || platformId === "x" ? require("../../../assets/social-icons/x.svg") :
-      platformId === "facebook" ? require("../../../assets/social-icons/facebook.svg") :
-      platformId === "youtube" ? require("../../../assets/social-icons/youtube.svg") :
-      platformId === "github" ? require("../../../assets/social-icons/github.svg") :
-      platformId === "dribbble" ? require("../../../assets/social-icons/dribbble.svg") :
-      undefined;
-    return localIcon ? RNImage.resolveAssetSource(localIcon)?.uri : undefined;
-  };
-
   return (
     <Modal visible={open} animationType="slide" onRequestClose={() => onOpenChange(false)} transparent>
       <View className="flex-1 bg-black/50 items-center justify-center px-6">
@@ -66,12 +53,11 @@ export default function SocialLinksModal({
               <Text className="text-gray-500 mb-3">No social platforms selected yet.</Text>
             ) : null}
             {selectedPlatforms.map((p) => {
-              const iconUri = resolveIcon(p.id);
               return (
                 <View key={p.id} className="mb-3">
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center gap-2">
-                      {iconUri ? <SvgUri width={20} height={20} uri={iconUri} /> : null}
+                      {p.icon ? <SvgUri width={20} height={20} uri={p.icon} /> : null}
                       <Text className="font-medium">{p.name}</Text>
                     </View>
                     <Pressable className="px-2 py-1" onPress={() => removeSocialPlatform(p.id)}>
@@ -100,14 +86,13 @@ export default function SocialLinksModal({
             <Text className="text-sm text-gray-700 mb-2">Add platform</Text>
             <ScrollView horizontal contentContainerStyle={{ gap: 8 }}>
               {availablePlatforms.map((p) => {
-                const iconUri = resolveIcon(p.id);
                 return (
                   <Pressable
                     key={p.id}
                     className="flex-row items-center gap-2 border border-gray-300 rounded-full px-3 py-2"
                     onPress={() => addSocialPlatform(p.id)}
                   >
-                    {iconUri ? <SvgUri width={18} height={18} uri={iconUri} /> : null}
+                    {p.icon ? <SvgUri width={18} height={18} uri={p.icon} /> : null}
                     <Text>{p.name}</Text>
                   </Pressable>
                 );
