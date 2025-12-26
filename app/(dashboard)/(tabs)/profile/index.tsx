@@ -60,7 +60,6 @@ export default function ProfileScreen() {
                 scrollEnabled
             >
                 <View className="w-full self-center gap-6" style={{ maxWidth: maxContentWidth, alignSelf: 'center' }}>
-
                     {/* Profile Card */}
                     <View className="w-full rounded-xl border border-gray-200">
                         {/* Row 1 */}

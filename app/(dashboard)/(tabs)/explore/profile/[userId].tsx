@@ -5,10 +5,10 @@ import FollowersList from '@/components/ui/FollowersList';
 import FollowingList from '@/components/ui/FollowingList';
 import { useState } from 'react';
 import { useGetCurrentUserQuery, useGetUserProfileByIdQuery } from '@/features/user/userApi';
-import { useGetFollowersQuery, useGetFollowingQuery } from '@/features/follow/followApi';
+import { useGetFollowersQuery, useGetFollowingQuery, useGetFollowStatusQuery, useGetMutualConnectionsQuery } from '@/features/follow/followApi';
 import { useGetReviewsByUserIdQuery } from '@/features/review/reviewApi';
-import { FramedAvatar } from '@/components/ui/avatar';
-import { Link as LinkIcon, Send, UserPen } from 'lucide-react-native';
+import { Avatar, AvatarFallback, AvatarImage, FramedAvatar } from '@/components/ui/avatar';
+import { ExternalLinkIcon, Link as LinkIcon, Pencil, Send, UserPen } from 'lucide-react-native';
 import { SvgUri } from 'react-native-svg';
 import { getSocialMeta } from '@/data/socialPlatforms';
 import Button from '@/components/ui/button';
@@ -21,7 +21,7 @@ export default function ExploreProfileScreen() {
   const isTablet = width >= 768;
   const maxContentWidth = isTablet ? 720 : 480;
   const avatarSize = isTablet ? 160 : 120;
-  const socialIconSize = isTablet ? 28 : 24;
+  const socialIconSize = isTablet ? 32 : 28;
   const actionButtonSize = isTablet ? 36 : 32;
   const actionIconSize = isTablet ? 22 : 18;
   const params = useLocalSearchParams<{ userId?: string; usarId?: string }>();
@@ -30,12 +30,34 @@ export default function ExploreProfileScreen() {
   const { data: loggedUser } = useGetCurrentUserQuery();
   const loggedInUserId = loggedUser?.userId;
   const { data: profileUser, isLoading: profileLoading } = useGetUserProfileByIdQuery(requestedUserId, { skip: !requestedUserId });
+  const canFollow = !!(profileUser?.userId && profileUser?.userId !== loggedInUserId);
+
+  // Follow relationship status between current viewer and the profile being viewed
+  const { data: followStatusRes } = useGetFollowStatusQuery({ userId: requestedUserId, loggedInUserId }, { skip: !loggedInUserId || !requestedUserId });
+
   const { data: followersResp, isLoading: followersLoading, isFetching: followersFetching } =
     useGetFollowersQuery({ userId: requestedUserId, limit: 20, loggedInUserId }, { skip: !requestedUserId });
   const { data: followingResp, isLoading: followingLoading, isFetching: followingFetching } =
     useGetFollowingQuery({ userId: requestedUserId, limit: 20, loggedInUserId }, { skip: !requestedUserId });
   const { data: reviewsResp, isLoading: reviewsLoading, isFetching: reviewsFetching } =
     useGetReviewsByUserIdQuery({ userId: requestedUserId, page: 1, limit: 20, loggedInUserId }, { skip: !requestedUserId });
+  const { data: mutualConnectionsResp, isLoading: mutualConnectionsLoading, isFetching: mutualConnectionsFetching } =
+    useGetMutualConnectionsQuery({ userId: profileUser?.userId, limit: 20 });
+
+  const nameOf = (u?: any) => {
+    if (!u) return "";
+    if (u.type === "professional") return u.brandName || u.username || u.name || "";
+    return u.username || u.name || "";
+  };
+  const mutualTotal = mutualConnectionsResp?.pagination?.totalCount ?? mutualConnectionsResp?.data?.length ?? 0;
+  const mutualNames = (mutualConnectionsResp?.data ?? []).map((mc: any) => nameOf(mc.user)).filter(Boolean);
+  const renderNameList = (names: string[]) => (
+    <>
+      {names.map((n, i) => (
+        <Text key={i} className="font-semibold text-white">{i > 0 ? ", " : ""}{n}</Text>
+      ))}
+    </>
+  );
 
   const followers = followersResp?.data ?? [];
   const following = followingResp?.data ?? [];
@@ -87,11 +109,11 @@ export default function ExploreProfileScreen() {
                 />
               </View>
 
-              <Text className="text-xl font-bold text-white">@{profileUser?.username ?? "user"}</Text>
-              <Text className="text-white">{profileUser?.name ?? "User"}</Text>
+              <Text className="text-xl font-bold text-white">@{profileUser?.username}</Text>
+              <Text className="text-white">{profileUser?.brandName || profileUser?.name}</Text>
 
               {/* Social Links */}
-              <View className="flex-row gap-3 mb-3">
+              <View className="flex-row gap-2 mt-2">
                 {Object.entries((profileUser as any)?.socialLinks || {}).map(([platform, url]) => {
                   const meta = getSocialMeta(String(platform));
                   return (
@@ -112,15 +134,40 @@ export default function ExploreProfileScreen() {
                 })}
               </View>
 
+              {/* Mutual Followers */}
+              {mutualConnectionsResp?.data?.length ? (
+                <View className="flex-row items-center gap-3 my-2">
+                  <View className="flex-row">
+                    {mutualConnectionsResp.data.slice(0, 3).map((mc: any, index: number) => (
+                      <Avatar
+                        size={30}
+                        key={mc.user?.userId ?? mc.followerId}
+                        className="w-6 h-6 border-2 border-white"
+                        style={{ marginLeft: index > 0 ? -12 : 0 }}
+                      >
+                        <AvatarImage src={((mc.user?.type === "professional" ? mc.user?.logo : mc.user?.profilePhoto) || "")} />
+                        <AvatarFallback className="bg-gray-200 text-gray-600">
+                          {nameOf(mc.user).charAt(0) || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                  </View>
+                  <Text className="text-white w-10/12">
+                    Followed by {renderNameList(mutualNames.slice(0, 3))}
+                    {mutualTotal > 3 ? ` and ${mutualTotal - 3} others` : ""}
+                  </Text>
+                </View>
+              ) : null}
+
               {/* Action Buttons */}
-              <View className="flex-row gap-3 justify-end">
-                <Pressable
-                  className='bg-white text-black rounded-full'
-                  style={{ width: actionButtonSize, height: actionButtonSize, alignItems: 'center', justifyContent: 'center' }}
-                  onPress={() => router.push("(dashboard)/(tabs)/profile/edit-profile")}
-                >
-                  <UserPen size={actionIconSize} color="#111827" />
-                </Pressable>
+              <View className="flex-row gap-3 justify-end items-center">
+                {/* Profession Service for Mobile */}
+                {isProfessional && (
+                  <Text className="bg-white text-secondary rounded-r-md absolute -left-4 px-2 py-1">
+                    {profileUser?.professionService}
+                  </Text>
+                )}
+
                 <Pressable
                   className='bg-white text-black rounded-full'
                   style={{ width: actionButtonSize, height: actionButtonSize, alignItems: 'center', justifyContent: 'center' }}
@@ -131,7 +178,60 @@ export default function ExploreProfileScreen() {
             </View>
 
             {/* Row 2 */}
-            <View className='bg-white rounded-b-xl p-4'>
+            <View className='bg-white rounded-b-xl p-4 gap-4'>
+                <View className="flex flex-row gap-3">
+                  {isProfessional && <Pressable
+                    className="flex-1 flex-row items-center justify-center gap-2 bg-primary py-2 rounded-full"
+                  >
+                    <Pencil size={20} color="#ffffff" />
+                    <Text className="text-white">Write a Review</Text>
+                  </Pressable>}
+
+                  {profileUser?.website && (
+                    <Pressable
+                      className="flex-1"
+                    >
+                      <ExternalLinkIcon size={20} color="#ffffff" />
+                      <Text className="text-white">Visit Website</Text>
+                    </Pressable>
+                  )}
+                </View>
+              <Pressable>
+                <View className="w-full flex justify-center gap-1">
+                  {canFollow &&
+                    (followStatusRes?.isFollowing &&
+                      followStatusRes?.followingStatus === "ACCEPTED" ? (
+                      <Button
+                        title='Following'
+                        variant="primary"
+                        className="w-full"
+                      />
+                    ) : followStatusRes?.followingStatus === "PENDING" ? (
+                      <Button
+                        title='Requested'
+                        variant="primary"
+                        className="w-full"
+                      />
+                    ) :
+                      followStatusRes?.isFollowed &&
+                        (followStatusRes?.followedStatus === "ACCEPTED" ||
+                          followStatusRes?.followedStatus === "PENDING") &&
+                        (followStatusRes?.followingStatus === "UNFOLLOWED" ||
+                          followStatusRes?.followingStatus === "NONE") ? (
+                        <Button
+                          title='Follow Back'
+                          variant="primary"
+                          className="w-full"
+                        />
+                      ) : (
+                        <Button
+                          title='Follow'
+                          variant="primary"
+                          className="w-full"
+                        />
+                      ))}
+                </View>
+              </Pressable>
               <View className="flex-row items-center gap-2">
                 <Text className="">{profileUser?.bio ?? "No bio"}</Text>
               </View>
